@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ui_13/core/color.dart';
-import 'package:ui_13/data/plant_model.dart';
+
+import '../models/plant.dart';
 
 class DetailsPage extends StatelessWidget {
-  final Plants plant;
+  final Plant plant;
   const DetailsPage({Key? key, required this.plant}) : super(key: key);
 
   @override

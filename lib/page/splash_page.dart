@@ -14,7 +14,7 @@ class SplashPage extends StatelessWidget {
         children: [
           const SizedBox(height: 25),
           const Text(
-            'Let\'s plant with us',
+            'Todas las plantas del INIA',
             style: TextStyle(
               fontSize: 22.0,
               letterSpacing: 1.8,
@@ -23,7 +23,7 @@ class SplashPage extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           const Text(
-            'Bring nature home',
+            '¡Vamos a conocerlos!',
             style: TextStyle(
               color: grey,
               fontSize: 16,
@@ -54,7 +54,7 @@ class SplashPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: const Text(
-                'Sign In',
+                'Entrar',
                 style: TextStyle(
                   color: white,
                   fontSize: 16,
@@ -66,7 +66,7 @@ class SplashPage extends StatelessWidget {
           TextButton(
             onPressed: () {},
             child: Text(
-              'Create an account',
+              'Crear una cuenta',
               style: TextStyle(
                 color: black.withOpacity(0.7),
                 fontSize: 16,
@@ -78,7 +78,7 @@ class SplashPage extends StatelessWidget {
           TextButton(
             onPressed: () {},
             child: Text(
-              'Forgot Password?',
+              '¿Olvidaste tu contraseña?',
               style: TextStyle(
                 color: black.withOpacity(0.4),
                 letterSpacing: 1,

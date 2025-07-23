@@ -3,8 +3,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ui_13/core/color.dart';
 import 'package:ui_13/data/category_model.dart';
-import 'package:ui_13/data/plant_data.dart';
+// import 'package:ui_13/data/plant_data.dart';
 import 'package:ui_13/page/details_page.dart';
+
+import 'package:ui_13/data/plants_data.dart';
+
+import '../models/plant.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,10 +19,47 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   PageController controller = PageController();
+
+  List<Plant> displayedPlants = [];
+  TextEditingController searchController = TextEditingController();
+
+  int selectId = 0;
+  int activePage = 0;
+
   @override
   void initState() {
-    controller = PageController(viewportFraction: 0.6, initialPage: 0);
     super.initState();
+    controller = PageController(viewportFraction: 0.6, initialPage: 0);
+
+    // Inicializas la lista mostrada con todas las plantas al inicio
+    displayedPlants = plants;
+
+    // Configuras el listener para el buscador
+    searchController.addListener(() {
+      filterPlants();
+    });
+  }
+
+  void filterPlants() {
+    final query = searchController.text.toLowerCase();
+
+    setState(() {
+      if (query.isEmpty) {
+        displayedPlants = plants;
+      } else {
+        displayedPlants = plants.where((plant) {
+          return plant.name.toLowerCase().contains(query) ||
+              plant.scientificName.toLowerCase().contains(query);
+        }).toList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,7 +83,8 @@ class _HomePageState extends State<HomePage> {
             width: 40.0,
             margin: const EdgeInsets.only(right: 20, top: 10, bottom: 5),
             decoration: BoxDecoration(
-              color: green,
+              color: const Color.fromARGB(
+                  255, 0, 0, 0), // es el color de fondo de epis
               boxShadow: [
                 BoxShadow(
                   color: green.withOpacity(0.5),
@@ -52,7 +94,7 @@ class _HomePageState extends State<HomePage> {
               ],
               borderRadius: BorderRadius.circular(10.0),
               image: const DecorationImage(
-                image: AssetImage('assets/images/pro.png'),
+                image: AssetImage('assets/images/logoepis.png'),
               ),
             ),
           ),
@@ -62,6 +104,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Search bar y filtros (igual que antes)
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
@@ -85,13 +128,14 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Row(
                       children: [
-                        const SizedBox(
+                        SizedBox(
                           height: 45,
                           width: 250,
                           child: TextField(
+                            controller: searchController,
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Search',
+                              hintText: '¿En que planta piensas?',
                             ),
                           ),
                         ),
@@ -127,6 +171,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            // Categorías (igual que antes)
             SizedBox(
               height: 35.0,
               child: Row(
@@ -160,6 +205,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            // Carrusel principal (igual que antes)
             SizedBox(
               height: 320.0,
               child: PageView.builder(
@@ -175,6 +221,44 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
+            // **Nueva sección: Lista vertical con todas las plantas**
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Text(
+                'Todas las plantas',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: displayedPlants.length,
+              itemBuilder: (context, index) {
+                final plant = displayedPlants[index];
+                return ListTile(
+                  title: Text(plant.name),
+                  subtitle: Text(plant.scientificName),
+                  trailing: Icon(
+                    plant.isMedicinal ? Icons.local_hospital : Icons.nature,
+                    color: plant.isMedicinal ? Colors.green : Colors.grey,
+                  ),
+                  onTap: () {
+                    // Navegar a detalles, por ejemplo:
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsPage(plant: plant),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            // Sección popular (igual que antes)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Row(
@@ -199,7 +283,7 @@ class _HomePageState extends State<HomePage> {
             SizedBox(
               height: 130.0,
               child: ListView.builder(
-                itemCount: populerPlants.length,
+                itemCount: popularPlants.length,
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(left: 20.0),
                 scrollDirection: Axis.horizontal,
@@ -223,7 +307,7 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           children: [
                             Image.asset(
-                              populerPlants[index].imagePath,
+                              popularPlants[index].imagePath,
                               width: 70,
                               height: 70,
                             ),
@@ -233,14 +317,14 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  populerPlants[index].name,
+                                  popularPlants[index].name,
                                   style: TextStyle(
                                     color: black.withOpacity(0.7),
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
                                 Text(
-                                  '\$${populerPlants[index].price.toStringAsFixed(0)}',
+                                  '\$${popularPlants[index].price.toStringAsFixed(0)}',
                                   style: TextStyle(
                                     color: black.withOpacity(0.4),
                                     fontWeight: FontWeight.w600,
@@ -361,7 +445,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  int selectId = 0;
-  int activePage = 0;
 }
